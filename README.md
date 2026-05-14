@@ -1,87 +1,68 @@
-# Customer Segmentation using K‑Means (RFM + Psychographic Data)
+# 🎯 Customer Segmentation: RFM + Psychographic Analysis
 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue.svg?style=for-the-badge&logo=python&logoColor=white)
 ![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)
 ![Pandas](https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white)
 
-This project segments customers who have made a purchase based on their:
+Este proyecto utiliza **Machine Learning (K-Means Clustering)** para segmentar clientes no solo por su comportamiento de compra, sino por su perfil psicológico y demográfico. El objetivo es permitir estrategias de comunicación hiper-personalizadas.
 
-- **Monetary value** (total spent)
-- **Purchase frequency** (number of transactions)
-- **Demographics** (age, gender, number of children)
-- **Psychographic traits** (interest in investment, patrimony, speed; personality traits like tranquility, insistence, distrust, emotionality, impatience, control, hostility, etc.)
+---
 
-The segmentation is performed using **K‑Means clustering** after standardizing the features. The optimal number of clusters is selected via the **elbow method**.
+## 📊 Resumen del Modelo
+Combinamos datos transaccionales con rasgos de personalidad para identificar patrones que el RFM tradicional ignora.
 
-## Data Source
+*   **Algoritmo:** K-Means Clustering.
+*   **Selección de Clusters:** Método del Codo (Elbow Method).
+*   **Tratamiento de datos:** Estandarización de variables (**StandardScaler**) y **One-Hot Encoding** para variables categóricas (género).
 
-The raw data comes from a **public Google Sheet**
-The script downloads the sheet directly as a CSV (no authentication required because it is public).
+---
 
-## Features Used
+## 🛠️ Variables Analizadas
 
-| Category | Features |
-|----------|----------|
-| **RFM** | Monetary (sum of `PRECIO TOTAL`), Frequency (count of records per customer) |
-| **Demographics** | `edad`, `sexo` (M/F), `hijos` |
-| **Interests** | `interes_inversion`, `interes_patrimonio`, `interes_rapidez` |
-| **Personality traits** | `rasgo_tranquilo`, `rasgo_insistente`, `rasgo_desconfiado`, `rasgo_emocional`, `rasgo_impaciente`, `rasgo_controlador`, `hostil`, `insistencia_num` |
+| Categoría | Variables Clave |
+| :--- | :--- |
+| **RFM Core** | `Monetary` (Gasto total), `Frequency` (Transacciones) |
+| **Demografía** | Edad, Sexo, Número de hijos |
+| **Intereses** | Inversión, Patrimonio, Rapidez |
+| **Psicometría** | Tranquilidad, Insistencia, Desconfianza, Emocionalidad, Impaciencia, Control, Hostilidad |
 
-Missing values are imputed with the median (numerical) or mode (categorical). The `sexo` column is one‑hot encoded.
+---
 
-## Project Structure
+## 📈 Resultados e Interpretación
 
-├── README.md
-├── requirements.txt
-├── .gitignore
+Los resultados se exportan automáticamente a `results/segmentos_clientes.csv`. A continuación, se detalla la interpretación de las métricas y los perfiles obtenidos.
+
+### Diccionario de Salida
+| Columna | Descripción |
+| :--- | :--- |
+| **Cliente** | Identificador único del cliente. |
+| **Segmento** | ID numérico del cluster asignado. |
+| **Segmento_Nombre** | Etiqueta descriptiva del perfil. |
+| **Monetary / Frequency** | Métricas de valor y comportamiento de compra. |
+| **edad / sexo** | Atributos demográficos clave. |
+
+### Perfiles de Segmentos Identificados
+> [!IMPORTANT]
+> Los siguientes perfiles fueron generados a partir de los centroides de la data real.
+
+*   **⚡ Segmento 0: Impulsive Buyers**  
+    *32 clientes* | Jóvenes con alta insistencia y volumen de compra frecuente.
+*   **🧘 Segmento 1: Calm Seniors**  
+    *18 clientes* | Clientes de mayor edad, alta tranquilidad y ticket promedio estable.
+*   **💎 Segmento 2: Premium Customers**  
+    *25 clientes* | Alto valor monetario (>$50k) y baja frecuencia; requieren atención personalizada.
+*   **⚠️ Segmento 3: At Risk / Occasional**  
+    *10 clientes* | Bajo gasto y baja frecuencia. Candidatos para campañas de reactivación.
+
+---
+
+## 📁 Estructura del Repositorio
+
+```bash
 ├── src/
-│ └── segment_customers.py
+│   └── segment_customers.py   # Script principal de procesamiento y modelado
 ├── results/
-│ ├── segmentos_clientes.csv # (generated)
-│ └── elbow.png # (generated)
-└── notebooks/ # optional
-
- ----------------------------- RESULTS --------------------------------
-
-results/segmentos_clientes.csv – each customer with assigned segment.
-results/elbow.png – plot to validate the number of clusters.
-
-Output Interpretation
-The CSV file contains the following columns:
-
-Column	Description
-Cliente	Customer name (original)
-Segmento	Cluster ID (0, 1, 2, …)
-Segmento_Nombre	Descriptive label (Alto Valor, Adulto Tranquilo, Impaciente, Estándar)
-Monetary	Total amount spent
-Frequency	Number of purchase records
-edad	Age
-sexo	Gender (M/F)
-
-Example of Segment Profiles (from real data)
-
-Segment 0: 32 customers – High Monetary, high insistence, young age → "Impulsive Buyers"
-Segment 1: 18 customers – Older, high tranquility, medium spend → "Calm Seniors"
-Segment 2: 25 customers – Very high Monetary (>50k), low Recency → "Premium Customers"
-Segment 3: 10 customers – Low spend, low frequency, medium age → "At Risk / Occasional"
-
-Dependencies
-Python 3.8+
-
-pandas
-
-numpy
-
-requests
-
-scikit‑learn
-
-matplotlib
-
-See requirements.txt for exact versions.
-
-License
-MIT – use freely for business or academic purposes.
-
-Author
-[Your Name] – [your.email@example.com]
+│   ├── segmentos_clientes.csv # Dataset final con la etiqueta de segmento
+│   └── elbow.png              # Gráfico de validación de clusters
+├── requirements.txt           # Dependencias del proyecto
+└── README.md                  # Documentación
