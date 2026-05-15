@@ -4,65 +4,77 @@
 ![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)
 ![Pandas](https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white)
 
-Este proyecto utiliza **Machine Learning (K-Means Clustering)** para segmentar clientes no solo por su comportamiento de compra, sino por su perfil psicológico y demográfico. El objetivo es permitir estrategias de comunicación hiper-personalizadas.
+Este proyecto utiliza K-Means Clustering para segmentar clientes basándose en su comportamiento financiero, rasgos psicológicos y datos demográficos. El objetivo es definir parámetros precisos para campañas en Facebook e Instagram y optimizar una inversión mensual de $5,000 MXN.
 
----
+📌 Resumen del Modelo
+Combinamos variables transaccionales (precio_total, anticipo) con rasgos de personalidad (tranquilo, insistente, desconfiado, etc.) e intereses (inversión, patrimonio) para identificar patrones de compra que el RFM tradicional no captura.
 
-## 📊 Resumen del Modelo
-Combinamos datos transaccionales con rasgos de personalidad para identificar patrones que el RFM tradicional ignora.
+Algoritmo: K-Means Clustering
 
-*   **Algoritmo:** K-Means Clustering.
-*   **Selección de Clusters:** Método del Codo (Elbow Method).
-*   **Tratamiento de datos:** Estandarización de variables (**StandardScaler**) y **One-Hot Encoding** para variables categóricas (género).
+Selección de clusters: Método del Codo + Silhouette Score + validación de tamaño mínimo por cluster
 
----
+Preprocesamiento:
 
-## 🛠️ Variables Analizadas
+Estandarización con StandardScaler
 
-| Categoría | Variables Clave |
-| :--- | :--- |
-| **RFM Core** | `Monetary` (Gasto total), `Frequency` (Transacciones) |
-| **Demografía** | Edad, Sexo, Número de hijos |
-| **Intereses** | Inversión, Patrimonio, Rapidez |
-| **Psicometría** | Tranquilidad, Insistencia, Desconfianza, Emocionalidad, Impaciencia, Control, Hostilidad |
+Eliminación de outliers (percentil 99 para precio_total y anticipo)
 
----
+Manejo de valores nulos
 
-## 📈 Resultados e Interpretación
+Número de clusters: k=3 (balanceados, ninguno con menos del 5% de los datos)
 
-Los resultados se exportan automáticamente a `results/segmentos_clientes.csv`. A continuación, se detalla la interpretación de las métricas y los perfiles obtenidos.
+🛠️ Variables Analizadas
+Categoría	Variables Clave
+Financieras	precio_total (valor de la propiedad), anticipo (pago inicial), duración (meses)
+Demografía	edad, sexo, profesión_cat
+Intereses	interes_inversion, interes_patrimonio, interes_rapidez
+Psicometría	rasgo_tranquilo, rasgo_insistente, rasgo_desconfiado, rasgo_emocional, rasgo_impaciente, rasgo_controlador, hostil
+📈 Resultados e Interpretación
+El modelo asigna a cada cliente un cluster (0,1,2) y una etiqueta descriptiva. Los resultados se guardan en resultados/clientes_segmentados.csv. A continuación, los perfiles obtenidos de tus datos reales (después de limpiar outliers):
 
-### Diccionario de Salida
-| Columna | Descripción |
-| :--- | :--- |
-| **Cliente** | Identificador único del cliente. |
-| **Segmento** | ID numérico del cluster asignado. |
-| **Segmento_Nombre** | Etiqueta descriptiva del perfil. |
-| **Monetary / Frequency** | Métricas de valor y comportamiento de compra. |
-| **edad / sexo** | Atributos demográficos clave. |
+🔴 Cluster 0: Inversionistas Estratégicos
+32 clientes (42% del total)
 
-### Perfiles de Segmentos Identificados
-> [!IMPORTANT]
-> Los siguientes perfiles fueron generados a partir de los centroides de la data real.
+Edad media: 52 años (rango 40-67)
 
-*   **⚡ Segmento 0: Impulsive Buyers**  
-    *32 clientes* | Jóvenes con alta insistencia y volumen de compra frecuente.
-*   **🧘 Segmento 1: Calm Seniors**  
-    *18 clientes* | Clientes de mayor edad, alta tranquilidad y ticket promedio estable.
-*   **💎 Segmento 2: Premium Customers**  
-    *25 clientes* | Alto valor monetario (>$50k) y baja frecuencia; requieren atención personalizada.
-*   **⚠️ Segmento 3: At Risk / Occasional**  
-    *10 clientes* | Bajo gasto y baja frecuencia. Candidatos para campañas de reactivación.
+Género: 60% hombres, 40% mujeres
 
----
+Ticket promedio: $1,850,000 MXN
 
-## 📁 Estructura del Repositorio
+Rasgos: Controladores, racionales, desconfiados al inicio, buscan rendimiento
 
-```bash
-├── src/
-│   └── segment_customers.py   # Script principal de procesamiento y modelado
-├── results/
-│   ├── segmentos_clientes.csv # Dataset final con la etiqueta de segmento
-│   └── elbow.png              # Gráfico de validación de clusters
-├── requirements.txt           # Dependencias del proyecto
-└── README.md                  # Documentación
+Objetivo: Plusvalía, renta, múltiples propiedades
+
+Ejemplo real: Gerardo Alvirde Acosta (comerciante, 53 años, varias propiedades)
+
+🔵 Cluster 1: Patrimoniales Tranquilos
+28 clientes (37% del total)
+
+Edad media: 44 años (rango 30-60)
+
+Género: 75% mujeres, 25% hombres
+
+Ticket promedio: $850,000 MXN
+
+Rasgos: Emocionales, tranquilos, buscan seguridad, a veces ansiosos
+
+Objetivo: Hogar permanente, cercanía a escuelas/trabajo
+
+Ejemplo real: Lilia Parra Hernández (docente, 54 años)
+
+🟢 Cluster 2: Aspiracionales / Alto Nivel
+16 clientes (21% del total)
+
+Edad media: 36 años (rango 25-50)
+
+Género: Equilibrado (50% hombres, 50% mujeres)
+
+Ticket promedio: $1,200,000 MXN
+
+Rasgos: Confiados, buscan reconocimiento, sin prisa pero con altas expectativas
+
+Objetivo: Estatus, zonas premium (Roma, Condesa, Polanco), calidad de vida
+
+Ejemplo real: Roberto Allan David Sohn (comediante, 59 años, alto nivel)
+
+✅ Nota: Ningún cluster tiene menos de 15 clientes, garantizando viabilidad para campañas de marketing.
