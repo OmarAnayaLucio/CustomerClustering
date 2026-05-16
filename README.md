@@ -13,6 +13,11 @@ Algoritmo: K-Means Clustering
 
 Selección de clusters: Método del Codo + Silhouette Score + validación de tamaño mínimo por cluster
 
+<img width="504" height="329" alt="image" src="https://github.com/user-attachments/assets/0b4e0898-5dd2-4267-a7cc-f2739831e038" />
+
+<img width="438" height="296" alt="image" src="https://github.com/user-attachments/assets/4e53551f-2741-45a5-a3ca-fbe6e2167425" />
+
+
 Preprocesamiento:
 
 Estandarización con StandardScaler
@@ -78,3 +83,24 @@ Objetivo: Estatus, zonas premium (Roma, Condesa, Polanco), calidad de vida
 Ejemplo real: Roberto Allan David Sohn (comediante, 59 años, alto nivel)
 
 ✅ Nota: Ningún cluster tiene menos de 15 clientes, garantizando viabilidad para campañas de marketing.
+
+🎯 Aplicación a Estrategia de Pauta (Meta Ads)
+Con estos clusters, puedes asignar $5,000 mensuales de la siguiente manera:
+
+Cluster	% Gasto	Monto	Objetivo Meta	Parámetros clave
+Inversionista	40%	$2,000	Leads / Conversiones	Edad 40-65, intereses financieros, horario 7-10 pm
+Patrimonial	35%	$1,750	Tráfico / Mensajes	Edad 30-55, mujeres, intereses hogar, 12-3 pm
+Aspiracional	25%	$1,250	Alcance / Engagement	Edad 25-45, zonas trendy, horario 6-9 pm
+
+
+📁 Estructura del Repositorio
+
+├── src/
+│   └── cluster_segmentacion.py   # Script principal de procesamiento y modelado
+├── resultados/
+│   ├── clientes_segmentados.csv  # Dataset final con columna 'cluster' y 'segmento_nombre'
+│   ├── elbow_plot.png            # Método del codo para validar k
+│   ├── silhouette_scores.png     # Scores de silhouette por cluster
+│   └── scatterplot_clusters.png  # Visualización 2D (precio_total vs anticipo)
+├── requirements.txt              # Dependencias (pandas, scikit-learn, matplotlib, seaborn)
+└── README.md                     # Este archivo
