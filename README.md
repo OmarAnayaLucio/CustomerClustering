@@ -98,14 +98,13 @@ Patrimonial	35%	$1,750	Tráfico / Mensajes	Edad 30-55, mujeres, intereses hogar,
 Aspiracional	25%	$1,250	Alcance / Engagement	Edad 25-45, zonas trendy, horario 6-9 pm
 
 
-📁 Estructura del Repositorio
+## 📁 Estructura del Repositorio
 
 ├── src/
-│   └── cluster_segmentacion.py   # Script principal de procesamiento y modelado
+│ └── cluster_segmentacion.py # Script principal: carga datos, limpia, clusteriza y exporta
 ├── resultados/
-│   ├── clientes_segmentados.csv  # Dataset final con columna 'cluster' y 'segmento_nombre'
-│   ├── elbow_plot.png            # Método del codo para validar k
-│   ├── silhouette_scores.png     # Scores de silhouette por cluster
-│   └── scatterplot_clusters.png  # Visualización 2D (precio_total vs anticipo)
-├── requirements.txt              # Dependencias (pandas, scikit-learn, matplotlib, seaborn)
-└── README.md                     # Este archivo
+│ ├── clientes_segmentados.csv # Dataset original + columna 'cluster' y 'segmento_nombre'
+│ ├── elbow_silhouette.png # Gráfico de validación (método del codo y silhouette score)
+│ └── scatterplot_clusters.png # Visualización 2D (precio_total vs anticipo) por cluster
+├── requirements.txt # Dependencias del proyecto (pandas, scikit-learn, matplotlib, seaborn)
+└── README.md # Documentación completa del proyecto
