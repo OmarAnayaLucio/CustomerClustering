@@ -28,13 +28,18 @@ Manejo de valores nulos
 
 Número de clusters: k=3 (balanceados, ninguno con menos del 5% de los datos)
 
-🛠️ Variables Analizadas
-Categoría	Variables Clave
-Financieras	precio_total (valor de la propiedad), anticipo (pago inicial), duración (meses)
-Demografía	edad, sexo, profesión_cat
-Intereses	interes_inversion, interes_patrimonio, interes_rapidez
-Psicometría	rasgo_tranquilo, rasgo_insistente, rasgo_desconfiado, rasgo_emocional, rasgo_impaciente, rasgo_controlador, hostil
+## 📊 Variables utilizadas en la segmentación
+
+| Categoría | Variables usadas | ¿Por qué importan para el negocio? |
+|-----------|----------------|--------------------------------------|
+| **Valor económico** | `precio_total`, `anticipo`, `duración` | Diferencian el poder adquisitivo y la capacidad de pago. Un inversionista paga más y da anticipos mayores. |
+| **Intención de compra** | `interes_inversion`, `interes_patrimonio`, `interes_rapidez` | Capturan el objetivo del cliente: ¿quiere ganar dinero o tener un hogar? Es la base de la segmentación. |
+| **Rasgos de personalidad** | `rasgo_tranquilo`, `insistente`, `desconfiado`, `emocional`, `controlador`, `hostil` | Determinan cómo debemos comunicarnos. Un controlador necesita datos duros; un emocional, testimonios y confianza. |
+| **Datos demográficos** | `edad`, `sexo`, `profesión_cat` | Ayudan a afinar los parámetros de audiencia en Meta Ads (rangos de edad, género, intereses laborales). |
+
+
 📈 Resultados e Interpretación
+
 El modelo asigna a cada cliente un cluster (0,1,2) y una etiqueta descriptiva. Los resultados se guardan en resultados/clientes_segmentados.csv. A continuación, los perfiles obtenidos de tus datos reales (después de limpiar outliers):
 
 🔴 Cluster 0: Inversionistas Estratégicos
