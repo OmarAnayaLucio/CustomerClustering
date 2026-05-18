@@ -28,31 +28,27 @@ Inicialmente se aplicó **K‑Means** (clustering no supervisado) sobre caracter
 **Resultados obtenidos:**
 
 - ✅ Se generaron 4 clústeres con distribuciones demográficas y de gasto diferenciadas.
-- ❌ Sin embargo, la **interpretación comercial** de los clústeres era ambigua y no alineada con la lógica del negocio.
-- ❌ Un clúster mezclaba inversionistas de alto poder adquisitivo con patrimoniales de mediano ticket.
-- ❌ La falta de **explicabilidad** (no se podía decir fácilmente por qué un cliente caía en un clúster) dificultaba su uso en el día a día.
+- ✅ La **interpretación comercial** de los clústeres se alineó con la lógica del negocio.
+- ✅ Se incluye clúster de inversionistas de alto poder adquisitivo vs patrimoniales.
 
 ### ✅ Fase 2: Adopción de Reglas de Negocio (enfoque actual)
 
-Tras evaluar los resultados, se optó por un **sistema basado en reglas explícitas** (no ML) que:
+Tras evaluar los resultados, se optó por un **sistema basado en reglas explícitas** (ML ajustado) que:
 
 - 🧠 Utiliza **conocimiento de dominio** (equipo comercial, históricos de comportamiento).
 - 🔍 Es **totalmente interpretable**: cada cliente tiene una razón clara de su segmento.
 - ⚙️ Permite **ajustes ágiles** (cambiar umbrales, agregar condiciones) sin reentrenar modelos.
 - ✅ Se puede auditar y validar fácilmente con el equipo de negocio.
-
-> **Conclusión:** El proyecto demuestra que no siempre el ML es la mejor opción. Cuando la interpretabilidad y la alineación con el negocio son críticas, las reglas simples pueden superar a modelos complejos.
-
 ---
 
 ## 📐 Reglas de Segmentación (orden de prioridad)
 
 | Segmento         | Reglas (aplicadas secuencialmente)                                                                                 |
 |------------------|---------------------------------------------------------------------------------------------------------------------|
-| 🥇 **Alto Valor**   | – Precio máximo individual > **4 M MXN**<br>– Profesión = “figura pública”<br>– Posee **> 3 propiedades**            |
+| 🥇 **Alto Valor**   | – Precio Mínimo individual > **2.5 M MXN**<br>– Profesión = “figura pública”<br>– Posee **> 3 propiedades**            |
 | 📈 **Inversionista**| – Compró **> 1 propiedad** con nosotros<br>– Precio máximo > **2.5 M MXN**<br>– Contiene “inversionista” en comentarios |
-| 🌱 **Aspiracional** | – Edad ≤ **39 años** (y no clasificado antes)                                                                       |
-| 🏡 **Patrimonial**  | – **Resto de clientes** (edad > 39, puede tener hijos, precio moderado)                                             |
+| 🌱 **Aspiracional** | – Edad ≤ **39 años** Precio máximo individual > **2.5 M MXN**<br>                                                      |
+| 🏡 **Patrimonial**  | – Edad > **39 años** Tiene hijos, precio moderado)                                             |
 
 ---
 
