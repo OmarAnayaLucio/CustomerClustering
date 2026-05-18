@@ -27,8 +27,6 @@ Inicialmente se aplicó **K‑Means** (clustering no supervisado) sobre caracter
 
 **Resultados obtenidos:**
 
-<img width="1236" height="599" alt="image" src="https://github.com/user-attachments/assets/0b9650d8-d83d-4440-b285-c9360390950e" />
-
 - ✅ Se generaron 4 clústeres con distribuciones demográficas y de gasto diferenciadas.
 - ✅ La **interpretación comercial** de los clústeres se alineó con la lógica del negocio.
 - ✅ Se incluye clúster de inversionistas de alto poder adquisitivo vs patrimoniales.
@@ -68,6 +66,8 @@ Tras evaluar los resultados, se optó por un **sistema basado en reglas explíci
 | Objetivo comercial   | Captar referidos, proyectos premium, relación personalizada. |
 | **Ejemplo real**     | *Adriana Marcela Sidorchuk* – Magistrada, 53 años, 4 propiedades, inversión total > $7 M MXN. |
 
+<img width="574" height="243" alt="image" src="https://github.com/user-attachments/assets/18e49c5e-9590-4cc5-b01c-5ee852710a28" />
+
 ---
 
 ### 📈 Cluster 1: Inversionistas Estratégicos  
@@ -82,6 +82,8 @@ Tras evaluar los resultados, se optó por un **sistema basado en reglas explíci
 | Rasgos               | Controladores, racionales, desconfiados al inicio, buscan rendimiento (renta o reventa). |
 | Objetivo comercial   | Proyectos con plusvalía, opciones de renta, financiamiento flexible. |
 | **Ejemplo real**     | *Gerardo Alvirde Acosta* – Comerciante, 53 años, 3 propiedades, inversión total $2.5 M MXN. |
+
+<img width="586" height="251" alt="image" src="https://github.com/user-attachments/assets/3f948532-222d-48d7-95d7-67d60705d1d4" />
 
 ---
 
@@ -98,6 +100,8 @@ Tras evaluar los resultados, se optó por un **sistema basado en reglas explíci
 | Objetivo comercial   | Créditos accesibles, propiedades funcionales, contenido educativo. |
 | **Ejemplo real**     | *Anahi Uribe Fuentes* – Diseñadora gráfica, 27 años, primera propiedad con apoyo familiar. |
 
+<img width="584" height="264" alt="image" src="https://github.com/user-attachments/assets/3cfc3e66-74b0-4e69-9384-bcf63bb1c6b7" />
+
 ---
 
 ### 🏡 Cluster 3: Patrimonial (Hogar y Familia)  
@@ -112,6 +116,8 @@ Tras evaluar los resultados, se optó por un **sistema basado en reglas explíci
 | Rasgos               | Buscan estabilidad, vivienda para habitar, valoran ubicación y seguridad. |
 | Objetivo comercial   | Zonas familiares, escuelas, servicios, promociones de referidos. |
 | **Ejemplo real**     | *Mario Alberto Chávez Díaz* – Jubilado, 70 años, compró 3 propiedades para sus hijos. |
+
+<img width="581" height="261" alt="image" src="https://github.com/user-attachments/assets/89bf5249-c805-4549-9fae-95051958fb46" />
 
 ---
 
