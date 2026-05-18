@@ -31,7 +31,7 @@ Inicialmente se aplicó **K‑Means** (clustering no supervisado) sobre caracter
 - ✅ La **interpretación comercial** de los clústeres se alineó con la lógica del negocio.
 - ✅ Se incluye clúster de inversionistas de alto poder adquisitivo vs patrimoniales.
 
-  <img width="760" height="484" alt="image" src="https://github.com/user-attachments/assets/19376ba0-ccf5-44df-804d-c792f0f8cbb8" />
+<img width="778" height="485" alt="image" src="https://github.com/user-attachments/assets/ef4ecda7-38f9-4237-b461-d59a08b59c17" />
 
 
 ### ✅ Fase 2: Adopción de Reglas de Negocio (enfoque actual)
