@@ -2,13 +2,11 @@
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue) ![Pandas](https://img.shields.io/badge/Pandas-2.0-green) ![Scikit‑learn](https://img.shields.io/badge/Scikit--learn-1.3-orange) ![License](https://img.shields.io/badge/License-Internal%20Use-lightgrey)
 
-> **De K‑Means a reglas de negocio**: un enfoque híbrido para segmentar clientes inmobiliarios con total interpretabilidad.
-
 ---
 
 ## 🎯 Objetivo del Proyecto
 
-Diseñar e implementar un sistema de segmentación de clientes basado en datos históricos de compra de inmuebles, con el fin de:
+Diseñar e implementar un sistema de segmentación de clientes basado en datos históricos de compra de inmuebles utilizando técnicas de machine learning para identificar patrones en grandes cantidades de datos, con el fin de:
 
 - Identificar perfiles comerciales diferenciados (**Alto Valor**, **Inversionista**, **Aspiracional**, **Patrimonial**).
 - Personalizar estrategias de marketing, ventas y fidelización.
@@ -23,7 +21,7 @@ El proyecto evolucionó desde un enfoque de **Machine Learning no supervisado (K
 
 ### 🔍 Fase 1: Exploración con Machine Learning (K‑Means)
 
-Inicialmente se aplicó **K‑Means** (clustering no supervisado) sobre características como: edad, precio total, hijos, profesión codificada, interés en inversión y rasgos de personalidad. El objetivo era encontrar agrupaciones naturales en los datos.
+Se aplicó **K‑Means** (clustering no supervisado) sobre características como: edad, precio total, hijos, profesión codificada, interés en inversión y rasgos de personalidad. El objetivo era encontrar agrupaciones naturales en los datos.
 
 **Resultados obtenidos:**
 
@@ -34,10 +32,9 @@ Inicialmente se aplicó **K‑Means** (clustering no supervisado) sobre caracter
 <img width="778" height="485" alt="image" src="https://github.com/user-attachments/assets/ef4ecda7-38f9-4237-b461-d59a08b59c17" />
 
 
-### ✅ Fase 2: Adopción de Reglas de Negocio (enfoque actual)
+### ✅ Fase 2:Reglas de Negocio
 
-Tras evaluar los resultados, se optó por un **sistema basado en reglas explícitas** (ML ajustado):
-## 📐 Reglas de Segmentación (orden de prioridad)
+📐 Reglas de Segmentación (orden de prioridad)
 
 | Segmento         | Reglas (aplicadas secuencialmente)                                                                                 |
 |------------------|---------------------------------------------------------------------------------------------------------------------|
