@@ -36,14 +36,7 @@ Inicialmente se aplicó **K‑Means** (clustering no supervisado) sobre caracter
 
 ### ✅ Fase 2: Adopción de Reglas de Negocio (enfoque actual)
 
-Tras evaluar los resultados, se optó por un **sistema basado en reglas explícitas** (ML ajustado) que:
-
-- 🧠 Utiliza **conocimiento de dominio** (equipo comercial, históricos de comportamiento).
-- 🔍 Es **totalmente interpretable**: cada cliente tiene una razón clara de su segmento.
-- ⚙️ Permite **ajustes ágiles** (cambiar umbrales, agregar condiciones) sin reentrenar modelos.
-- ✅ Se puede auditar y validar fácilmente con el equipo de negocio.
----
-
+Tras evaluar los resultados, se optó por un **sistema basado en reglas explícitas** (ML ajustado):
 ## 📐 Reglas de Segmentación (orden de prioridad)
 
 | Segmento         | Reglas (aplicadas secuencialmente)                                                                                 |
@@ -130,3 +123,10 @@ Tras evaluar los resultados, se optó por un **sistema basado en reglas explíci
 ├── 📈 scatter_segmentos_final.png       # Dispersión: Edad vs Precio Máximo
 ├── 📄 requirements.txt                  # Dependencias Python
 └── 📖 README.md                         # Este documento
+
+👥 Equipo y Contacto
+Desarrollado para Altaltium – Inversiones Inmobiliarias
+Por el equipo de Analítica de Datos.
+
+📧 Correo: analytics@altaltium.com
+🌐 Web: www.altaltium.com
