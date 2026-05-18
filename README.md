@@ -44,6 +44,10 @@ El objetivo era encontrar agrupaciones naturales en los datos.
 | 🌱 **Aspiracional** | – Edad ≤ **39 años** Precio máximo individual > **2.5 M MXN**<br>                                                      |
 | 🏡 **Patrimonial**  | – Edad > **39 años** Tiene hijos, precio moderado)                                             |
 
+DASHBOARD
+
+https://omaranayalucio.github.io/CustomerClustering/
+
 ---
 
 <img width="1183" height="670" alt="image" src="https://github.com/user-attachments/assets/0222f8ca-97e8-468d-84ac-6c3d617b8d57" />
