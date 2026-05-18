@@ -21,7 +21,7 @@ El proyecto evolucionó desde un enfoque de **Machine Learning no supervisado (K
 
 ### 🔍 Fase 1: Exploración con Machine Learning (K‑Means)
 
-Se aplicó **K‑Means** (clustering no supervisado) sobre características como: edad, precio total, # d epropiedades adquiridad, hijos, profesión y rasgos de personalidad. 
+Se aplicó **K‑Means** (clustering no supervisado) sobre características como: edad, precio total, # de propiedades adquiridad, hijos, profesión y rasgos de personalidad. 
 El objetivo era encontrar agrupaciones naturales en los datos.
 
 **Resultados obtenidos:**
