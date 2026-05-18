@@ -27,6 +27,8 @@ Inicialmente se aplicó **K‑Means** (clustering no supervisado) sobre caracter
 
 **Resultados obtenidos:**
 
+<img width="1236" height="599" alt="image" src="https://github.com/user-attachments/assets/0b9650d8-d83d-4440-b285-c9360390950e" />
+
 - ✅ Se generaron 4 clústeres con distribuciones demográficas y de gasto diferenciadas.
 - ✅ La **interpretación comercial** de los clústeres se alineó con la lógica del negocio.
 - ✅ Se incluye clúster de inversionistas de alto poder adquisitivo vs patrimoniales.
