@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Altaltium · Dashboard con Tabla Corregida y Porcentajes en Barras</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #EBEBEE; color: #000000; padding-top: 0; }
+        .sticky-filters {
+            position: sticky; top: 0; z-index: 1000;
+            background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(10px);
+            border-bottom: 1px solid #DFDFE1; box-shadow: 0 6px 14px rgba(0, 0, 0, 0.02);
+            padding: 12px 24px; margin-bottom: 24px;
+            display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #FFFFFF;
+            padding: 6px 18px 6px 12px;
+            border-radius: 40px;
+            border: 1px solid #DFDFE1;
+        }
+        .logo-icon { background: #52BEC0; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000000; font-size: 1.2rem; font-weight: 700; }
+        .logo-text { font-weight: 700; font-size: 1rem; letter-spacing: -0.3px; background: linear-gradient(135deg, #000000 0%, #52BEC0 100%); background-clip: text; -webkit-background-clip: text; color: transparent; }
+        .filter-group-sticky { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+        .segment-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+        .seg-btn {
+            background: #FFFFFF; border: 2px solid #DFDFE1; border-radius: 40px;
+            padding: 6px 20px; font-size: 0.8rem; font-weight: 500; cursor: pointer;
+            transition: all 0.2s ease; color: #000000;
+        }
+        .seg-btn.active[data-seg="Alto Nivel"] { background: #000000; color: white; border-color: #000000; }
+        .seg-btn.active[data-seg="Inversionista"] { background: #3B3B3B; color: white; border-color: #3B3B3B; }
+        .seg-btn.active[data-seg="Aspiracional"] { background: #52BEC0; color: #000000; border-color: #52BEC0; }
+        .seg-btn.active[data-seg="Patrimonial"] { background: #00FFFF; color: #000000; border-color: #00FFFF; }
+        .seg-btn.active[data-seg="todos"] { background: #52BEC0; color: #000000; border-color: #52BEC0; }
+        
+        .filter-select, .filter-input {
+            background: #FFFFFF; border: 1px solid #DFDFE1; border-radius: 40px;
+            padding: 6px 16px; font-size: 0.8rem; min-width: 100px; color: #000000;
+        }
+        .price-range, .age-range { display: flex; gap: 8px; align-items: center; background: #F9FCFE; border-radius: 40px; padding: 0 8px; }
+        .price-range input, .age-range input { width: 100px; border: none; background: transparent; padding: 6px 0; outline: none; }
+        .btn-reset-sticky { background: #F4F4F6; border: 1px solid #DFDFE1; border-radius: 40px; padding: 6px 20px; cursor: pointer; }
+        .btn-reset-sticky:hover { background: #52BEC0; color: #000000; }
+        .dashboard-container { max-width: 1600px; margin: 0 auto; padding: 0 24px 32px 24px; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 22px; margin-bottom: 36px; }
+        .kpi-card { background: #FFFFFF; border-radius: 28px; padding: 20px; border: 1px solid #DFDFE1; transition: 0.2s; }
+        .kpi-icon { font-size: 2rem; color: #52BEC0; margin-bottom: 12px; }
+        .kpi-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; color: #5F5F6B; }
+        .kpi-value { font-size: 2.2rem; font-weight: 800; color: #000000; }
+        .row-side-by-side {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            margin-bottom: 40px;
+        }
+        .chart-card { background: #FFFFFF; border-radius: 28px; padding: 20px; border: 1px solid #DFDFE1; }
+        .chart-title { font-weight: 700; font-size: 1.05rem; margin-bottom: 18px; border-left: 4px solid #52BEC0; padding-left: 14px; color: #000000; }
+        canvas { max-height: 280px; width: 100%; }
+        .full-width { grid-column: 1 / -1; }
+        .full-width canvas { max-height: 400px; }
+        .chart-note {
+            font-size: 0.7rem;
+            color: #6F6F7A;
+            margin-top: 12px;
+            text-align: center;
+            border-top: 1px dashed #DFDFE1;
+            padding-top: 10px;
+        }
+        .table-wrapper { background: #FFFFFF; border-radius: 28px; padding: 20px; overflow-x: auto; border: 1px solid #DFDFE1; margin-top: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        th { text-align: left; padding: 12px 8px; background: #F8F8FA; border-bottom: 2px solid #DFDFE1; cursor: pointer; user-select: none; transition: background 0.2s; white-space: nowrap; }
+        th:hover { background: #E8ECF0; }
+        th i { margin-left: 6px; font-size: 0.7rem; color: #6F6F7A; }
+        td { padding: 10px 8px; border-bottom: 1px solid #EBEBEE; vertical-align: top; word-break: break-word; max-width: 250px; }
+        .badge-seg {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .badge-seg.Alto-Nivel { background: #000000; color: white; }
+        .badge-seg.Inversionista { background: #3B3B3B; color: white; }
+        .badge-seg.Aspiracional { background: #52BEC0; color: #000000; }
+        .badge-seg.Patrimonial { background: #00FFFF; color: #000000; }
+        .badge-seg.Desconocido { background: #DFDFE1; color: #000000; }
+        .pagination { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 20px; }
+        .pagination button { background: #F4F4F6; border: 1px solid #DFDFE1; border-radius: 30px; padding: 6px 14px; cursor: pointer; font-size: 0.7rem; }
+        .pagination button:hover { background: #52BEC0; color: white; }
+        .footer-note { text-align: center; font-size: 0.7rem; color: #6F6F7A; margin-top: 30px; padding-top: 20px; border-top: 1px solid #DFDFE1; }
+        @media (max-width: 860px) {
+            .sticky-filters { flex-direction: column; align-items: stretch; }
+            .row-side-by-side { grid-template-columns: 1fr; gap: 28px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sticky-filters">
+    <div class="logo-area">
+        <div class="logo-icon">A</div>
+        <div class="logo-text">Altaltium</div>
+    </div>
+    <div class="filter-group-sticky">
+        <span style="font-weight: 600;"><i class="fas fa-tag"></i> Segmento:</span>
+        <div class="segment-buttons" id="segmentButtons">
+            <button data-seg="todos" class="seg-btn active">Todos</button>
+            <button data-seg="Inversionista" class="seg-btn">Inversionista</button>
+            <button data-seg="Patrimonial" class="seg-btn">Patrimonial</button>
+            <button data-seg="Aspiracional" class="seg-btn">Aspiracional</button>
+            <button data-seg="Alto Nivel" class="seg-btn">Alto Nivel</button>
+        </div>
+    </div>
+    <div class="filter-group-sticky">
+        <span><i class="fas fa-venus-mars"></i> Sexo:</span>
+        <select id="sexFilter" class="filter-select">
+            <option value="all">Todos</option>
+            <option value="M">Masculino</option>
+            <option value="F">Femenino</option>
+        </select>
+    </div>
+    <div class="filter-group-sticky">
+        <span><i class="fas fa-calendar-alt"></i> Fecha:</span>
+        <div class="date-range">
+            <input type="date" id="startDate" class="filter-input" placeholder="Desde">
+            <input type="date" id="endDate" class="filter-input" placeholder="Hasta">
+        </div>
+    </div>
+    <div class="filter-group-sticky">
+        <span><i class="fas fa-dollar-sign"></i> Precio (MXN):</span>
+        <div class="price-range">
+            <input type="number" id="minPrice" placeholder="Mín" step="10000">
+            <span>-</span>
+            <input type="number" id="maxPrice" placeholder="Máx" step="10000">
+        </div>
+    </div>
+    <div class="filter-group-sticky">
+        <span><i class="fas fa-calendar-week"></i> Edad:</span>
+        <div class="age-range">
+            <input type="number" id="minAge" placeholder="Mín" step="1">
+            <span>-</span>
+            <input type="number" id="maxAge" placeholder="Máx" step="1">
+        </div>
+    </div>
+    <div class="filter-group-sticky">
+        <span><i class="fas fa-building"></i> # Propiedades:</span>
+        <select id="propFilter" class="filter-select">
+            <option value="all">Todas</option>
+            <option value="1">1 propiedad</option>
+            <option value="2">2 propiedades</option>
+            <option value="3">3 propiedades</option>
+            <option value="4">4+ propiedades</option>
+        </select>
+    </div>
+    <div class="filter-group-sticky">
+        <select id="alcaldiaSelectSticky" class="filter-select"><option value="all">Todas las Alcaldías</option></select>
+        <select id="profesionSelectSticky" class="filter-select"><option value="all">Todas las Profesiones</option></select>
+        <button id="resetStickyBtn" class="btn-reset-sticky"><i class="fas fa-undo-alt"></i> Reset</button>
+    </div>
+</div>
+
+<div class="dashboard-container">
+    <div class="kpi-grid">
+        <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-users"></i></div><div class="kpi-label">Total Clientes (Únicos)</div><div class="kpi-value" id="totalClients">-</div></div>
+        <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-chart-line"></i></div><div class="kpi-label">Edad Promedio</div><div class="kpi-value" id="avgAge">-</div></div>
+        <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-dollar-sign"></i></div><div class="kpi-label">Precio Promedio</div><div class="kpi-value" id="avgPrice">-</div></div>
+        <div class="kpi-card"><div class="kpi-icon"><i class="fas fa-calendar-week"></i></div><div class="kpi-label">Rango fechas</div><div class="kpi-value" id="dateRangeKpi">-</div></div>
+    </div>
+
+    <div class="row-side-by-side">
+        <div class="chart-card">
+            <div class="chart-title"><i class="fas fa-chart-scatter"></i> Edad vs Precio (por segmento)</div>
+            <canvas id="scatterChart"></canvas>
+            <div id="scatterNote" class="chart-note"></div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-title"><i class="fas fa-chart-bar"></i> Distribución por Perfil</div>
+            <canvas id="perfilChart"></canvas>
+        </div>
+    </div>
+
+    <div class="charts-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)); gap: 28px; margin-bottom: 40px;">
+        <div class="chart-card">
+            <div class="chart-title"><i class="fas fa-chart-bar"></i> Clientes por # Propiedades Compradas</div>
+            <canvas id="propiedadesChart"></canvas>
+        </div>
+        <div class="chart-card"><div class="chart-title"><i class="fas fa-venus-mars"></i> Proporción por Sexo</div><canvas id="genderChart"></canvas></div>
+        <div class="chart-card"><div class="chart-title"><i class="fas fa-city"></i> Top 10 Alcaldías</div><canvas id="locationChart"></canvas></div>
+        <div class="chart-card"><div class="chart-title"><i class="fas fa-chart-line"></i> 📈 Ventas en el tiempo (transacciones)</div><canvas id="timelineChart"></canvas></div>
+        <div class="chart-card">
+            <div class="chart-title"><i class="fas fa-chart-pie"></i> Estado Civil</div>
+            <canvas id="civilChart"></canvas>
+            <div id="civilChartNote" class="chart-note"></div>
+        </div>
+        <div class="chart-card"><div class="chart-title"><i class="fas fa-briefcase"></i> Top Profesiones</div><canvas id="professionChart"></canvas></div>
+        <div class="chart-card"><div class="chart-title"><i class="fas fa-chart-line"></i> Precio Promedio por Perfil</div><canvas id="priceByPerfilChart"></canvas></div>
+        <div class="chart-card"><div class="chart-title"><i class="fas fa-chart-scatter"></i> Rango de Edad</div><canvas id="ageHistChart"></canvas></div>
+    </div>
+
+    <div class="table-wrapper">
+        <div style="display:flex; justify-content: space-between; margin-bottom: 12px;"><strong><i class="fas fa-table-list"></i> Todos los registros (transacciones)</strong><span id="rowCountSpan"></span></div>
+        <div style="overflow-x: auto;">
+            <table id="clientTable">
+                <thead id="tableHeader"></thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+        <div class="pagination" id="paginationControls">
+            <button id="prevPageBtn"><i class="fas fa-chevron-left"></i> Anterior</button>
+            <span id="pageInfo">Página 1</span>
+            <button id="nextPageBtn">Siguiente <i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+    <div class="footer-note">Filtro de segmento múltiple. Las gráficas de barras muestran valor absoluto y porcentaje.</div>
+</div>
+
+<script>
+    (function() {
+        document.addEventListener('DOMContentLoaded', () => {
+            Chart.register(ChartDataLabels);
+            Chart.defaults.set('plugins.datalabels', {
+                color: '#000000',
+                backgroundColor: 'rgba(255,255,255,0.7)',
+                borderRadius: 4,
+                padding: { left: 4, right: 4, top: 2, bottom: 2 },
+                font: { weight: 'bold', size: 10 }
+            });
+
+            let transactions = [];
+            let clients = [];
+            let filteredTransactions = [];
+            let filteredClients = [];
+            let currentPage = 1;
+            const rowsPerPage = 20;
+            let sortColumn = 'cliente';
+            let sortDirection = 'asc';
+            let selectedSegments = [];
+
+            const segmentColors = {
+                'Alto Nivel': '#000000',
+                'Inversionista': '#3B3B3B',
+                'Aspiracional': '#52BEC0',
+                'Patrimonial': '#00FFFF',
+                'Desconocido': '#DFDFE1'
+            };
+
+            function parsePrice(val) {
+                if (val === undefined || val === null) return null;
+                if (typeof val === 'number') return val;
+                let str = String(val).trim();
+                str = str.replace(/[^\d,.-]/g, '');
+                if (str === '') return null;
+                let parts = str.split(',');
+                if (parts.length > 2) {
+                    let decimalPart = parts.pop();
+                    let integerPart = parts.join('');
+                    str = integerPart + '.' + decimalPart;
+                } else if (parts.length === 2) {
+                    if (parts[1].length === 2 && (parts[0].length > 3 || parts[0].includes('.'))) {
+                        str = parts[0].replace(/\./g, '') + '.' + parts[1];
+                    } else {
+                        str = str.replace(/,/g, '');
+                    }
+                }
+                str = str.replace(/\.(?=.*\.)/g, '');
+                let num = parseFloat(str);
+                return isNaN(num) ? null : num;
+            }
+
+            function parseFechaFirma(fechaStr) {
+                if (!fechaStr || fechaStr === 'desconocido') return null;
+                let clean = fechaStr.replace(/\s+/g, ' ').trim();
+                let parts = clean.split(',');
+                let datePart = parts.length > 1 ? parts.slice(1).join(',').trim() : clean;
+                const meses = {enero:0,febrero:1,marzo:2,abril:3,mayo:4,junio:5,julio:6,agosto:7,septiembre:8,octubre:9,noviembre:10,diciembre:11};
+                let match = datePart.match(/(\d{1,2})\s+de\s+([a-zñ]+)\s+de\s+(\d{4})/i);
+                if (match) {
+                    let day = parseInt(match[1]);
+                    let monthName = match[2].toLowerCase();
+                    let year = parseInt(match[3]);
+                    if (meses[monthName] !== undefined) return new Date(year, meses[monthName], day);
+                }
+                let d = new Date(datePart);
+                return isNaN(d.getTime()) ? null : d;
+            }
+
+            function getSegmento(perfilRaw) {
+                if (!perfilRaw) return 'Desconocido';
+                let lower = perfilRaw.toString().trim().toLowerCase();
+                if (lower.includes('alto') && (lower.includes('nivel') || lower.includes('valor') || lower.includes('elite') || lower === 'alto')) {
+                    return 'Alto Nivel';
+                }
+                if (lower === 'inversionista') return 'Inversionista';
+                if (lower === 'patrimonial') return 'Patrimonial';
+                if (lower === 'aspiracional') return 'Aspiracional';
+                return 'Desconocido';
+            }
+
+            async function loadData() {
+                const sheetCsvUrl = 'https://docs.google.com/spreadsheets/d/1O8GC1KhZnfejdjx-tgjXNG9VfoY2jIx31rSbgrujcP4/export?format=csv&gid=0';
+                let fallback = false;
+                let rawRows = [];
+                try {
+                    const resp = await fetch(sheetCsvUrl);
+                    if (resp.ok) {
+                        const csvText = await resp.text();
+                        const parsed = parseCSVToJSON(csvText);
+                        if (parsed && parsed.length > 5) {
+                            rawRows = parsed;
+                            console.log('✅ Datos cargados desde Google Sheets');
+                        } else fallback = true;
+                    } else fallback = true;
+                } catch(e) { fallback = true; }
+                if (fallback || rawRows.length === 0) {
+                    console.warn('⚠️ Usando datos de respaldo (fallback). Publica la hoja como CSV.');
+                    rawRows = getEmbeddedDataset();
+                }
+                if (rawRows.length > 0) console.log('📋 Columnas detectadas:', Object.keys(rawRows[0]));
+
+                transactions = rawRows.map(r => {
+                    let edadVal = r.Edad;
+                    let edadNum = edadVal !== undefined && edadVal !== '' ? parseInt(edadVal) : null;
+                    let propiedadesRaw = r['# propiedades compradas'];
+                    let numProp = (propiedadesRaw !== undefined && propiedadesRaw !== '') ? parseInt(propiedadesRaw) : 0;
+                    if (isNaN(numProp)) numProp = 0;
+                    return {
+                        ...r,
+                        precio_total: parsePrice(r.precio_total),
+                        edad: edadNum,
+                        numPropiedades: numProp,
+                        segmento: getSegmento(r.Perfil),
+                        alcaldiaClean: (r.alcaldia || r.estado || 'Desconocido').toString().trim(),
+                        sexoClean: (r.sexo || '').toUpperCase(),
+                        perfilClean: (r.Perfil || 'desconocido').toString(),
+                        profesion: r.profesion || 'No especificada',
+                        fechaFirma: parseFechaFirma(r.fecha_de_firma),
+                        fechaStr: r.fecha_de_firma || '',
+                        comentarios: r.comentarios || r.Comentarios || '',
+                        clienteNombre: (r.cliente || '').trim()
+                    };
+                });
+
+                // Crear clientes únicos
+                const clientMap = new Map();
+                transactions.forEach(t => {
+                    const name = t.clienteNombre;
+                    if (!name) return;
+                    if (!clientMap.has(name)) {
+                        clientMap.set(name, {
+                            cliente: name,
+                            edad: t.edad,
+                            sexo: t.sexoClean,
+                            alcaldia: t.alcaldiaClean,
+                            estado_civil: t.estado_civil,
+                            profesion: t.profesion,
+                            precio_total: t.precio_total,
+                            fechaFirma: t.fechaFirma,
+                            fechaStr: t.fechaStr,
+                            comentarios: t.comentarios,
+                            numPropiedades: t.numPropiedades,
+                            perfiles: [t.segmento]
+                        });
+                    } else {
+                        const existing = clientMap.get(name);
+                        existing.perfiles.push(t.segmento);
+                        if (t.numPropiedades > existing.numPropiedades) existing.numPropiedades = t.numPropiedades;
+                        if (t.edad !== null && existing.edad === null) existing.edad = t.edad;
+                        if (t.sexoClean && existing.sexo === '') existing.sexo = t.sexoClean;
+                        if (t.alcaldiaClean && existing.alcaldia === '') existing.alcaldia = t.alcaldiaClean;
+                        if (t.estado_civil && existing.estado_civil === '') existing.estado_civil = t.estado_civil;
+                        if (t.profesion && existing.profesion === 'No especificada') existing.profesion = t.profesion;
+                        if (t.precio_total !== null && existing.precio_total === null) existing.precio_total = t.precio_total;
+                        if (t.fechaFirma && !existing.fechaFirma) existing.fechaFirma = t.fechaFirma;
+                        if (t.fechaStr && !existing.fechaStr) existing.fechaStr = t.fechaStr;
+                        if (t.comentarios && !existing.comentarios) existing.comentarios = t.comentarios;
+                    }
+                });
+                clients = Array.from(clientMap.values()).map(c => {
+                    const freq = {};
+                    c.perfiles.forEach(seg => { freq[seg] = (freq[seg] || 0) + 1; });
+                    let bestSeg = 'Desconocido';
+                    let maxCount = 0;
+                    for (const [seg, count] of Object.entries(freq)) {
+                        if (count > maxCount) {
+                            maxCount = count;
+                            bestSeg = seg;
+                        } else if (count === maxCount && seg !== 'Desconocido') {
+                            bestSeg = seg;
+                        }
+                    }
+                    if (freq['Alto Nivel'] && freq['Alto Nivel'] === maxCount) bestSeg = 'Alto Nivel';
+                    return { ...c, segmento: bestSeg, perfiles: undefined };
+                });
+
+                console.log('📊 Clientes únicos por perfil:', (() => {
+                    const counts = { 'Alto Nivel':0, 'Inversionista':0, 'Patrimonial':0, 'Aspiracional':0, 'Desconocido':0 };
+                    clients.forEach(c => counts[c.segmento]++);
+                    return counts;
+                })());
+
+                populateFilterOptions();
+                selectedSegments = [];
+                document.querySelectorAll('.seg-btn').forEach(btn => btn.classList.remove('active'));
+                const todosBtn = document.querySelector('.seg-btn[data-seg="todos"]');
+                if (todosBtn) todosBtn.classList.add('active');
+                applyFiltersAndRender();
+            }
+
+            function parseCSVToJSON(csv) {
+                const workbook = XLSX.read(csv, { type: 'string', raw: true });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                return XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+            }
+
+            function getEmbeddedDataset() {
+                return [
+                    { cliente: "Cliente A", Edad: 50, sexo: "F", Perfil: "Aspiracional", alcaldia: "BENITO JUAREZ", estado_civil: "desconocido", profesion: "Docente", precio_total: "1,134,142.37", fecha_de_firma: "sábado, 30 de abril de 2022", comentarios: "ejemplo", "# propiedades compradas": "1" },
+                    { cliente: "Cliente B", Edad: 59, sexo: "M", Perfil: "Alto Nivel", alcaldia: "CUAJIMALPA DE MORELOS", estado_civil: "Casado", profesion: "Empresario", precio_total: "2,069,860.00", fecha_de_firma: "jueves, 11 de julio de 2024", comentarios: "", "# propiedades compradas": "2" },
+                    { cliente: "Cliente C", Edad: 27, sexo: "F", Perfil: "Aspiracional", alcaldia: "CUAUHTEMOC", estado_civil: "Soltero", profesion: "Diseñadora", precio_total: "878,762.00", fecha_de_firma: "martes, 13 de agosto de 2024", comentarios: "", "# propiedades compradas": "1" },
+                    { cliente: "Cliente D", Edad: 50, sexo: "M", Perfil: "Inversionista", alcaldia: "CUAUHTEMOC", estado_civil: "desconocido", profesion: "Abogado", precio_total: "4,120,000.00", fecha_de_firma: "lunes, 13 de marzo de 2023", comentarios: "", "# propiedades compradas": "3" },
+                    { cliente: "Cliente E", Edad: 65, sexo: "F", Perfil: "Patrimonial", alcaldia: "BENITO JUAREZ", estado_civil: "Casado", profesion: "Jubilada", precio_total: "983,600.00", fecha_de_firma: "sábado, 2 de diciembre de 2023", comentarios: "", "# propiedades compradas": "1" },
+                    { cliente: "Cliente F", Edad: 45, sexo: "M", Perfil: "Alto Valor", alcaldia: "COYOACAN", estado_civil: "Soltero", profesion: "Finanzas", precio_total: "8,000,000.00", fecha_de_firma: "lunes, 1 de enero de 2024", comentarios: "", "# propiedades compradas": "4" }
+                ];
+            }
+
+            function populateFilterOptions() {
+                const alcaldias = [...new Set(clients.map(c => c.alcaldia).filter(Boolean))].sort();
+                const profesiones = [...new Set(clients.map(c => c.profesion).filter(p => p && p !== 'No especificada'))].sort();
+                const alcalSelect = document.getElementById('alcaldiaSelectSticky');
+                const profSelect = document.getElementById('profesionSelectSticky');
+                if (alcalSelect) alcalSelect.innerHTML = '<option value="all">Todas las Alcaldías</option>' + alcaldias.map(a => `<option value="${a}">${a}</option>`).join('');
+                if (profSelect) profSelect.innerHTML = '<option value="all">Todas las Profesiones</option>' + profesiones.map(p => `<option value="${p}">${p}</option>`).join('');
+            }
+
+            function applyFiltersAndRender() {
+                let filteredClientsTemp = [...clients];
+                let filteredTransactionsTemp = [...transactions];
+
+                if (selectedSegments.length > 0) {
+                    filteredClientsTemp = filteredClientsTemp.filter(c => selectedSegments.includes(c.segmento));
+                    filteredTransactionsTemp = filteredTransactionsTemp.filter(t => selectedSegments.includes(t.segmento));
+                }
+
+                const sexVal = document.getElementById('sexFilter')?.value;
+                if (sexVal && sexVal !== 'all') {
+                    filteredClientsTemp = filteredClientsTemp.filter(c => c.sexo === sexVal);
+                    filteredTransactionsTemp = filteredTransactionsTemp.filter(t => t.sexoClean === sexVal);
+                }
+                const startDateVal = document.getElementById('startDate')?.value;
+                const endDateVal = document.getElementById('endDate')?.value;
+                if (startDateVal) {
+                    const start = new Date(startDateVal);
+                    filteredClientsTemp = filteredClientsTemp.filter(c => c.fechaFirma && c.fechaFirma >= start);
+                    filteredTransactionsTemp = filteredTransactionsTemp.filter(t => t.fechaFirma && t.fechaFirma >= start);
+                }
+                if (endDateVal) {
+                    const end = new Date(endDateVal);
+                    end.setHours(23,59,59);
+                    filteredClientsTemp = filteredClientsTemp.filter(c => c.fechaFirma && c.fechaFirma <= end);
+                    filteredTransactionsTemp = filteredTransactionsTemp.filter(t => t.fechaFirma && t.fechaFirma <= end);
+                }
+                const minPrice = parseFloat(document.getElementById('minPrice')?.value);
+                const maxPrice = parseFloat(document.getElementById('maxPrice')?.value);
+                if (!isNaN(minPrice)) {
+                    filteredClientsTemp = filteredClientsTemp.filter(c => c.precio_total !== null && c.precio_total >= minPrice);
+                    filteredTransactionsTemp = filteredTransactionsTemp.filter(t => t.precio_total !== null && t.precio_total >= minPrice);
+                }
+                if (!isNaN(maxPrice)) {
+                    filteredClientsTemp = filteredClientsTemp.filter(c => c.precio_total !== null && c.precio_total <= maxPrice);
+                    filteredTransactionsTemp = filteredTransactionsTemp.filter(t => t.precio_total !== null && t.precio_total <= maxPrice);
+                }
+                const minAge = parseInt(document.getElementById('minAge')?.value);
+                const maxAge = parseInt(document.getElementById('maxAge')?.value);
+                if (!isNaN(minAge)) {
+                    filteredClientsTemp = filteredClientsTemp.filter(c => c.edad !== null && c.edad >= minAge);
+                    filteredTransactionsTemp = filteredTransactionsTemp.filter(t => t.edad !== null && t.edad >= minAge);
+                }
+                if (!isNaN(maxAge)) {
+                    filteredClientsTemp = filteredClientsTemp.filter(c => c.edad !== null && c.edad <= maxAge);
+                    filteredTransactionsTemp = filteredTransactionsTemp.filter(t => t.edad !== null && t.edad <= maxAge);
+                }
+                const alcaldiaSel = document.getElementById('alcaldiaSelectSticky')?.value;
+                if (alcaldiaSel && alcaldiaSel !== 'all') {
+                    filteredClientsTemp = filteredClientsTemp.filter(c => c.alcaldia === alcaldiaSel);
+                    filteredTransactionsTemp = filteredTransactionsTemp.filter(t => t.alcaldiaClean === alcaldiaSel);
+                }
+                const profesionSel = document.getElementById('profesionSelectSticky')?.value;
+                if (profesionSel && profesionSel !== 'all') {
+                    filteredClientsTemp = filteredClientsTemp.filter(c => c.profesion === profesionSel);
+                    filteredTransactionsTemp = filteredTransactionsTemp.filter(t => t.profesion === profesionSel);
+                }
+                const propFilter = document.getElementById('propFilter')?.value;
+                if (propFilter && propFilter !== 'all') {
+                    const target = parseInt(propFilter);
+                    if (target === 4) {
+                        filteredClientsTemp = filteredClientsTemp.filter(c => c.numPropiedades >= 4);
+                        filteredTransactionsTemp = filteredTransactionsTemp.filter(t => t.numPropiedades >= 4);
+                    } else {
+                        filteredClientsTemp = filteredClientsTemp.filter(c => c.numPropiedades === target);
+                        filteredTransactionsTemp = filteredTransactionsTemp.filter(t => t.numPropiedades === target);
+                    }
+                }
+
+                filteredClients = filteredClientsTemp;
+                filteredTransactions = filteredTransactionsTemp;
+                applySortingToFilteredTransactions();
+                currentPage = 1;
+                renderAll();
+            }
+
+            function applySortingToFilteredTransactions() {
+                if (!filteredTransactions.length) return;
+                const column = sortColumn;
+                const direction = sortDirection;
+                filteredTransactions.sort((a, b) => {
+                    let valA, valB;
+                    switch(column) {
+                        case 'cliente': valA = (a.clienteNombre || '').toLowerCase(); valB = (b.clienteNombre || '').toLowerCase(); break;
+                        case 'edad': valA = a.edad !== null ? a.edad : -Infinity; valB = b.edad !== null ? b.edad : -Infinity; break;
+                        case 'sexo': valA = a.sexoClean || ''; valB = b.sexoClean || ''; break;
+                        case 'perfil': valA = a.segmento || ''; valB = b.segmento || ''; break;
+                        case 'propiedades': valA = a.numPropiedades; valB = b.numPropiedades; break;
+                        case 'alcaldia': valA = a.alcaldiaClean || ''; valB = b.alcaldiaClean || ''; break;
+                        case 'estado_civil': valA = a.estado_civil || ''; valB = b.estado_civil || ''; break;
+                        case 'fecha_firma': valA = a.fechaFirma ? a.fechaFirma.getTime() : -Infinity; valB = b.fechaFirma ? b.fechaFirma.getTime() : -Infinity; break;
+                        case 'precio_total': valA = a.precio_total !== null ? a.precio_total : -Infinity; valB = b.precio_total !== null ? b.precio_total : -Infinity; break;
+                        case 'comentarios': valA = (a.comentarios || '').toLowerCase(); valB = (b.comentarios || '').toLowerCase(); break;
+                        default: valA = (a.clienteNombre || '').toLowerCase(); valB = (b.clienteNombre || '').toLowerCase();
+                    }
+                    if (valA === valB) return 0;
+                    let comparison = valA > valB ? 1 : -1;
+                    return direction === 'asc' ? comparison : -comparison;
+                });
+            }
+
+            function renderAll() { updateKPIs(); updateCharts(); renderTableWithPagination(); updatePaginationControls(); }
+
+            function updateKPIs() {
+                const total = filteredClients.length;
+                const ages = filteredClients.map(c => c.edad).filter(a => a !== null && !isNaN(a));
+                const avgAge = ages.length ? (ages.reduce((a,b)=>a+b,0)/ages.length).toFixed(1) : '-';
+                const prices = filteredClients.map(c => c.precio_total).filter(p => p && p > 0);
+                const avgPriceM = prices.length ? (prices.reduce((a,b)=>a+b,0)/prices.length/1e6).toFixed(2) : '0';
+                let fechasValidas = filteredClients.map(c=>c.fechaFirma).filter(f => f);
+                let rangeStr = '-';
+                if (fechasValidas.length) {
+                    let minDate = new Date(Math.min(...fechasValidas));
+                    let maxDate = new Date(Math.max(...fechasValidas));
+                    rangeStr = `${minDate.toLocaleDateString()} - ${maxDate.toLocaleDateString()}`;
+                }
+                document.getElementById('totalClients').innerText = total;
+                document.getElementById('avgAge').innerText = avgAge !== '-' ? avgAge : '—';
+                document.getElementById('avgPrice').innerText = `$${avgPriceM}M`;
+                document.getElementById('dateRangeKpi').innerHTML = rangeStr;
+            }
+
+            const colorPrimary = '#52BEC0';
+            const colorSecondary = '#00FFFF';
+            const colorBlack = '#000000';
+
+            let charts = {};
+            function updateCharts() {
+                // 1. Scatter plot
+                const maxY = 5000000;
+                const datasetsScatter = [];
+                let outlierCount = 0;
+                const segs = ['Alto Nivel', 'Inversionista', 'Patrimonial', 'Aspiracional'];
+                segs.forEach(seg => {
+                    const color = segmentColors[seg];
+                    const normalPoints = [];
+                    const outlierPoints = [];
+                    filteredTransactions.forEach(t => {
+                        if (t.segmento === seg && t.edad !== null && t.precio_total !== null) {
+                            if (t.precio_total > maxY) {
+                                outlierCount++;
+                                outlierPoints.push({ x: t.edad, y: maxY, originalY: t.precio_total });
+                            } else {
+                                normalPoints.push({ x: t.edad, y: t.precio_total });
+                            }
+                        }
+                    });
+                    if (normalPoints.length) datasetsScatter.push({ label: seg, data: normalPoints, backgroundColor: color, borderColor: colorBlack, borderWidth: 1, pointRadius: 5, pointHoverRadius: 7, pointStyle: 'circle' });
+                    if (outlierPoints.length) datasetsScatter.push({ label: seg + ' (>5M)', data: outlierPoints, backgroundColor: color, borderColor: '#FF0000', borderWidth: 2, pointRadius: 6, pointHoverRadius: 8, pointStyle: 'triangle' });
+                });
+                if(charts.scatter) charts.scatter.destroy();
+                if(datasetsScatter.length) {
+                    charts.scatter = new Chart(document.getElementById('scatterChart'), { type: 'scatter', data: { datasets: datasetsScatter }, options: { scales: { x: { title: { display: true, text: 'Edad (años)' } }, y: { min: 0, max: maxY, title: { display: true, text: 'Precio Total (MXN)' }, ticks: { callback: (val) => '$' + val.toLocaleString() } } }, plugins: { tooltip: { callbacks: { label: (ctx) => ctx.raw.originalY ? `${ctx.dataset.label.replace(' (>5M)', '')}: Edad ${ctx.raw.x} años, Precio $${ctx.raw.originalY.toLocaleString()} (fuera de escala)` : `${ctx.dataset.label}: Edad ${ctx.raw.x} años, Precio $${ctx.raw.y.toLocaleString()}` } }, datalabels: { display: false } } } });
+                } else { const ctx = document.getElementById('scatterChart').getContext('2d'); charts.scatter = new Chart(ctx, { type: 'scatter', data: { datasets: [] } }); }
+                const scatterNote = document.getElementById('scatterNote');
+                if (scatterNote) scatterNote.innerHTML = outlierCount > 0 ? `⚠️ ${outlierCount} transacción(es) con precio > $5M (triángulos rojos en borde superior).` : '';
+
+                // 2. Perfil (barras con porcentaje)
+                let segCount = {'Alto Nivel':0, 'Inversionista':0, 'Patrimonial':0, 'Aspiracional':0};
+                filteredClients.forEach(c => { if (c.segmento !== 'Desconocido') segCount[c.segmento]++; });
+                let totalPerfiles = Object.values(segCount).reduce((a,b)=>a+b,0);
+                if(charts.perfil) charts.perfil.destroy();
+                charts.perfil = new Chart(document.getElementById('perfilChart'), { type:'bar', data:{ labels:Object.keys(segCount), datasets:[{ label:'Clientes', data:Object.values(segCount), backgroundColor:Object.keys(segCount).map(l => segmentColors[l]), borderColor:colorBlack, borderWidth:1, borderRadius:6 }] }, options:{ plugins:{ datalabels:{ anchor:'end', align:'top', formatter:(val) => `${val} (${totalPerfiles?((val/totalPerfiles)*100).toFixed(1):0}%)` } } } });
+
+                // 3. Propiedades (barras con porcentaje)
+                let propCount = { '1':0, '2':0, '3':0, '4+':0 };
+                filteredClients.forEach(c => {
+                    let n = c.numPropiedades;
+                    if (n === 1) propCount['1']++;
+                    else if (n === 2) propCount['2']++;
+                    else if (n === 3) propCount['3']++;
+                    else if (n >= 4) propCount['4+']++;
+                });
+                let propLabels = ['1', '2', '3', '4+'];
+                let propData = propLabels.map(l => propCount[l]);
+                let totalProp = propData.reduce((a,b)=>a+b,0);
+                if(charts.propiedades) charts.propiedades.destroy();
+                charts.propiedades = new Chart(document.getElementById('propiedadesChart'), { type:'bar', data:{ labels:propLabels, datasets:[{ label:'Clientes', data:propData, backgroundColor:colorPrimary, borderColor:colorBlack, borderWidth:1, borderRadius:6 }] }, options:{ plugins:{ datalabels:{ anchor:'end', align:'top', formatter:(val) => `${val} (${totalProp?((val/totalProp)*100).toFixed(1):0}%)` } } } });
+
+                // 4. Sexo (pastel con % ya tiene)
+                let male = filteredClients.filter(c=>c.sexo==='M').length, female = filteredClients.filter(c=>c.sexo==='F').length;
+                if(charts.gender) charts.gender.destroy();
+                charts.gender = new Chart(document.getElementById('genderChart'), { type:'pie', data:{ labels:['Masculino','Femenino'], datasets:[{ data:[male,female], backgroundColor:[colorPrimary, colorSecondary], borderColor:colorBlack, borderWidth:1 }] }, options:{ plugins:{ datalabels:{ formatter:(val,ctx)=> { let total=male+female; let pct=total?((val/total)*100).toFixed(1):0; return `${val} (${pct}%)`; } } } } });
+
+                // 5. Alcaldías (barras con %)
+                let alcalFreq = {};
+                filteredClients.forEach(c=>{ let a=c.alcaldia; if(a) alcalFreq[a]=(alcalFreq[a]||0)+1; });
+                let topAlcal = Object.entries(alcalFreq).sort((a,b)=>b[1]-a[1]).slice(0,10);
+                let totalAlcal = topAlcal.reduce((s, e) => s + e[1], 0);
+                if(charts.location) charts.location.destroy();
+                charts.location = new Chart(document.getElementById('locationChart'), { type:'bar', data:{ labels:topAlcal.map(e=>e[0]), datasets:[{ label:'Clientes', data:topAlcal.map(e=>e[1]), backgroundColor:colorPrimary, borderColor:colorBlack, borderWidth:1, borderRadius:6 }] }, options:{ plugins:{ datalabels:{ anchor:'end', align:'top', formatter:(val) => `${val} (${totalAlcal?((val/totalAlcal)*100).toFixed(1):0}%)` } } } });
+
+                // 6. Línea temporal (sin %)
+                let monthly = {};
+                filteredTransactions.forEach(t => { if(t.fechaFirma) { let key = `${t.fechaFirma.getFullYear()}-${String(t.fechaFirma.getMonth()+1).padStart(2,'0')}`; monthly[key] = (monthly[key]||0)+1; } });
+                let sortedMonths = Object.keys(monthly).sort();
+                if(charts.timeline) charts.timeline.destroy();
+                charts.timeline = new Chart(document.getElementById('timelineChart'), { type:'line', data:{ labels:sortedMonths.map(m => m.replace('-','/')), datasets:[{ label:'Ventas (transacciones)', data:sortedMonths.map(m=>monthly[m]), borderColor:colorPrimary, tension:0.2, fill:false, pointBackgroundColor:colorSecondary, pointBorderColor:colorBlack, pointRadius:4 }] }, options:{ plugins:{ datalabels:{ display: false } } } });
+
+                // 7. Estado Civil (doughnut con %)
+                let civilMap = {}; let unknownCount=0;
+                filteredClients.forEach(c => { let civ = c.estado_civil || 'Desconocido'; if(civ==='Desconocido') unknownCount++; else civilMap[civ]=(civilMap[civ]||0)+1; });
+                if(charts.civil) charts.civil.destroy();
+                if(Object.keys(civilMap).length) {
+                    charts.civil = new Chart(document.getElementById('civilChart'), { type:'doughnut', data:{ labels:Object.keys(civilMap), datasets:[{ data:Object.values(civilMap), backgroundColor:[colorPrimary, colorSecondary, '#52BEC0aa', '#00FFFFaa'], borderColor:colorBlack, borderWidth:1 }] }, options:{ plugins:{ datalabels:{ color:colorBlack, backgroundColor:'rgba(255,255,255,0.85)', formatter:(val,ctx)=> { let total=Object.values(civilMap).reduce((a,b)=>a+b,0); let pct=total?((val/total)*100).toFixed(1):0; return `${val} (${pct}%)`; } } } } });
+                } else { const ctx = document.getElementById('civilChart').getContext('2d'); charts.civil = new Chart(ctx, { type:'doughnut', data:{ labels:[], datasets:[] } }); }
+                const civilNote = document.getElementById('civilChartNote');
+                if (civilNote) civilNote.innerHTML = unknownCount>0 ? `⚠️ ${unknownCount} cliente(s) sin información de estado civil (excluidos).` : '';
+
+                // 8. Profesiones (barras con %)
+                let profMap = {};
+                filteredClients.forEach(c => { let p = c.profesion || 'No especificada'; if(p !== 'No especificada') profMap[p] = (profMap[p]||0)+1; });
+                let topProf = Object.entries(profMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
+                let totalProf = topProf.reduce((s, e) => s + e[1], 0);
+                if(charts.prof) charts.prof.destroy();
+                charts.prof = new Chart(document.getElementById('professionChart'), { type:'bar', data:{ labels:topProf.map(p=>p[0]), datasets:[{ label:'Clientes', data:topProf.map(p=>p[1]), backgroundColor:colorBlack, borderColor:colorPrimary, borderWidth:2, borderRadius:6 }] }, options:{ plugins:{ datalabels:{ anchor:'end', align:'top', formatter:(val) => `${val} (${totalProf?((val/totalProf)*100).toFixed(1):0}%)` } } } });
+
+                // 9. Precio promedio por perfil (sin %)
+                let priceBySeg = {};
+                filteredClients.forEach(c => { if(c.precio_total && c.segmento !== 'Desconocido') { if(!priceBySeg[c.segmento]) priceBySeg[c.segmento]=[]; priceBySeg[c.segmento].push(c.precio_total); } });
+                let avgPriceSeg = Object.keys(priceBySeg).map(k=> ({ seg:k, avg: priceBySeg[k].reduce((a,b)=>a+b,0)/priceBySeg[k].length/1e6 }));
+                if(charts.pricePerf) charts.pricePerf.destroy();
+                charts.pricePerf = new Chart(document.getElementById('priceByPerfilChart'), { type:'bar', data:{ labels:avgPriceSeg.map(p=>p.seg), datasets:[{ label:'Millones MXN', data:avgPriceSeg.map(p=>p.avg), backgroundColor:avgPriceSeg.map(p=>segmentColors[p.seg]), borderColor:colorBlack, borderWidth:1, borderRadius:6 }] }, options:{ plugins:{ datalabels:{ anchor:'end', align:'top', formatter:(val)=>val.toFixed(1)+'M' } } } });
+
+                // 10. Rango de Edad (barras con %)
+                let ageRanges = {'20-29':0,'30-39':0,'40-49':0,'50-59':0,'60+':0};
+                filteredClients.forEach(c=>{ let e=c.edad; if(e){ if(e<30) ageRanges['20-29']++; else if(e<40) ageRanges['30-39']++; else if(e<50) ageRanges['40-49']++; else if(e<60) ageRanges['50-59']++; else ageRanges['60+']++; } });
+                let totalAge = Object.values(ageRanges).reduce((a,b)=>a+b,0);
+                if(charts.ageHist) charts.ageHist.destroy();
+                charts.ageHist = new Chart(document.getElementById('ageHistChart'), { type:'bar', data:{ labels:Object.keys(ageRanges), datasets:[{ label:'Clientes', data:Object.values(ageRanges), backgroundColor:colorPrimary, borderColor:colorBlack, borderWidth:1, borderRadius:6 }] }, options:{ plugins:{ datalabels:{ anchor:'end', align:'top', formatter:(val) => `${val} (${totalAge?((val/totalAge)*100).toFixed(1):0}%)` } } } });
+            }
+
+            function renderTableWithPagination() {
+                const start = (currentPage - 1) * rowsPerPage;
+                const end = start + rowsPerPage;
+                const pageData = filteredTransactions.slice(start, end);
+                const headers = [
+                    { key: 'cliente', label: 'Cliente' },
+                    { key: 'edad', label: 'Edad' },
+                    { key: 'sexo', label: 'Sexo' },
+                    { key: 'perfil', label: 'Perfil' },
+                    { key: 'propiedades', label: '# Propiedades' },
+                    { key: 'alcaldia', label: 'Alcaldía' },
+                    { key: 'estado_civil', label: 'Estado Civil' },
+                    { key: 'fecha_firma', label: 'Fecha Firma' },
+                    { key: 'precio_total', label: 'Precio Total' },
+                    { key: 'comentarios', label: 'Comentarios' }
+                ];
+                const headerHtml = headers.map(h => {
+                    let icon = sortColumn === h.key ? (sortDirection === 'asc' ? '<i class="fas fa-arrow-up"></i>' : '<i class="fas fa-arrow-down"></i>') : '<i class="fas fa-sort" style="opacity:0.4"></i>';
+                    return `<th data-sort="${h.key}">${h.label} ${icon}</th>`;
+                }).join('');
+                const tableHeader = document.getElementById('tableHeader');
+                const tableBody = document.getElementById('tableBody');
+                if (tableHeader) tableHeader.innerHTML = `<tr>${headerHtml}</tr>`;
+                if (tableBody) tableBody.innerHTML = pageData.map(t => `
+                    <tr>
+                        <td>${t.clienteNombre || '—'}</td>
+                        <td>${t.edad !== null ? t.edad : '—'}</td>
+                        <td>${t.sexoClean || '—'}</td>
+                        <td><span class="badge-seg ${t.segmento.replace(/\s/g, '-')}">${t.segmento}</span></td>
+                        <td>${t.numPropiedades}</td>
+                        <td>${t.alcaldiaClean}</td>
+                        <td>${t.estado_civil || '—'}</td>
+                        <td>${t.fechaStr ? t.fechaStr.substring(0,16) : '—'}</td>
+                        <td>${t.precio_total ? '$'+t.precio_total.toLocaleString() : '—'}</td>
+                        <td>${t.comentarios ? t.comentarios.substring(0, 100) + (t.comentarios.length > 100 ? '…' : '') : '—'}</td>
+                    </tr>
+                `).join('');
+                const rowSpan = document.getElementById('rowCountSpan');
+                if (rowSpan) rowSpan.innerHTML = `${filteredTransactions.length} registros (pág. ${currentPage}/${Math.ceil(filteredTransactions.length/rowsPerPage) || 1})`;
+                attachTableSortEvents();
+            }
+
+            function attachTableSortEvents() {
+                document.querySelectorAll('#clientTable th').forEach(th => {
+                    th.removeEventListener('click', handleSortClick);
+                    th.addEventListener('click', handleSortClick);
+                });
+            }
+
+            function handleSortClick(e) {
+                const th = e.currentTarget;
+                const sortKey = th.getAttribute('data-sort');
+                if (!sortKey) return;
+                if (sortColumn === sortKey) sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                else { sortColumn = sortKey; sortDirection = 'asc'; }
+                applySortingToFilteredTransactions();
+                currentPage = 1;
+                renderTableWithPagination();
+                updatePaginationControls();
+            }
+
+            function updatePaginationControls() {
+                const totalPages = Math.ceil(filteredTransactions.length / rowsPerPage);
+                const pageInfo = document.getElementById('pageInfo');
+                const prevBtn = document.getElementById('prevPageBtn');
+                const nextBtn = document.getElementById('nextPageBtn');
+                if (pageInfo) pageInfo.innerText = `Página ${currentPage} de ${totalPages || 1}`;
+                if (prevBtn) prevBtn.disabled = currentPage === 1;
+                if (nextBtn) nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+            }
+
+            function nextPage() { if (currentPage < Math.ceil(filteredTransactions.length / rowsPerPage)) { currentPage++; renderTableWithPagination(); updatePaginationControls(); } }
+            function prevPage() { if (currentPage > 1) { currentPage--; renderTableWithPagination(); updatePaginationControls(); } }
+
+            function bindEvents() {
+                const segBtns = document.querySelectorAll('.seg-btn');
+                const todosBtn = document.querySelector('.seg-btn[data-seg="todos"]');
+
+                segBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const seg = btn.getAttribute('data-seg');
+                        if (seg === 'todos') {
+                            selectedSegments = [];
+                            segBtns.forEach(b => b.classList.remove('active'));
+                            todosBtn.classList.add('active');
+                        } else {
+                            if (btn.classList.contains('active')) {
+                                btn.classList.remove('active');
+                                selectedSegments = selectedSegments.filter(s => s !== seg);
+                            } else {
+                                btn.classList.add('active');
+                                selectedSegments.push(seg);
+                            }
+                            if (selectedSegments.length === 0) {
+                                todosBtn.classList.add('active');
+                            } else {
+                                todosBtn.classList.remove('active');
+                            }
+                        }
+                        applyFiltersAndRender();
+                    });
+                });
+
+                const sexFilter = document.getElementById('sexFilter');
+                const startDate = document.getElementById('startDate');
+                const endDate = document.getElementById('endDate');
+                const minPrice = document.getElementById('minPrice');
+                const maxPrice = document.getElementById('maxPrice');
+                const minAge = document.getElementById('minAge');
+                const maxAge = document.getElementById('maxAge');
+                const alcaldia = document.getElementById('alcaldiaSelectSticky');
+                const profesion = document.getElementById('profesionSelectSticky');
+                const propFilter = document.getElementById('propFilter');
+                const resetBtn = document.getElementById('resetStickyBtn');
+
+                if (sexFilter) sexFilter.addEventListener('change', applyFiltersAndRender);
+                if (startDate) startDate.addEventListener('change', applyFiltersAndRender);
+                if (endDate) endDate.addEventListener('change', applyFiltersAndRender);
+                if (minPrice) minPrice.addEventListener('input', applyFiltersAndRender);
+                if (maxPrice) maxPrice.addEventListener('input', applyFiltersAndRender);
+                if (minAge) minAge.addEventListener('input', applyFiltersAndRender);
+                if (maxAge) maxAge.addEventListener('input', applyFiltersAndRender);
+                if (alcaldia) alcaldia.addEventListener('change', applyFiltersAndRender);
+                if (profesion) profesion.addEventListener('change', applyFiltersAndRender);
+                if (propFilter) propFilter.addEventListener('change', applyFiltersAndRender);
+
+                if (resetBtn) resetBtn.addEventListener('click', () => {
+                    selectedSegments = [];
+                    segBtns.forEach(b => b.classList.remove('active'));
+                    if (todosBtn) todosBtn.classList.add('active');
+                    if (sexFilter) sexFilter.value = 'all';
+                    if (startDate) startDate.value = '';
+                    if (endDate) endDate.value = '';
+                    if (minPrice) minPrice.value = '';
+                    if (maxPrice) maxPrice.value = '';
+                    if (minAge) minAge.value = '';
+                    if (maxAge) maxAge.value = '';
+                    if (alcaldia) alcaldia.value = 'all';
+                    if (profesion) profesion.value = 'all';
+                    if (propFilter) propFilter.value = 'all';
+                    sortColumn = 'cliente';
+                    sortDirection = 'asc';
+                    applyFiltersAndRender();
+                });
+
+                const prevBtn = document.getElementById('prevPageBtn');
+                const nextBtn = document.getElementById('nextPageBtn');
+                if (prevBtn) prevBtn.addEventListener('click', prevPage);
+                if (nextBtn) nextBtn.addEventListener('click', nextPage);
+            }
+
+            loadData().then(() => { bindEvents(); }).catch(err => console.error('Error en la carga:', err));
+        });
+    })();
+</script>
+</body>
+</html>
