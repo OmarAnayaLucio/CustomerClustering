@@ -1,4 +1,4 @@
-# 🎯 Customer Segmentation: RFM + Psychographic Analysis
+# 🎯 Customer Segmentation: Psychographic Analysis
 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue.svg?style=for-the-badge&logo=python&logoColor=white)
 ![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)
@@ -7,7 +7,7 @@
 Este proyecto utiliza K-Means Clustering para segmentar clientes basándose en su comportamiento financiero, rasgos psicológicos y datos demográficos. El objetivo es definir parámetros precisos para campañas en Facebook e Instagram y optimizar una inversión mensual de $5,000 MXN.
 
 📌 Resumen del Modelo
-Combinamos variables transaccionales (precio_total, anticipo) con rasgos de personalidad (tranquilo, insistente, desconfiado, etc.) e intereses (inversión, patrimonio) para identificar patrones de compra que el RFM tradicional no captura.
+Combinamos variables transaccionales (precio_total, anticipo) con rasgos de personalidad (tranquilo, insistente, desconfiado, etc.) e intereses (inversión, patrimonio) para identificar patrones de compra.
 
 Algoritmo: K-Means Clustering
 
@@ -17,16 +17,6 @@ Selección de clusters: Método del Codo + Silhouette Score + validación de tam
 
 <img width="438" height="296" alt="image" src="https://github.com/user-attachments/assets/4e53551f-2741-45a5-a3ca-fbe6e2167425" />
 
-
-Preprocesamiento:
-
-Estandarización con StandardScaler
-
-Eliminación de outliers (percentil 99 para precio_total y anticipo)
-
-Manejo de valores nulos
-
-Número de clusters: k=3 (balanceados, ninguno con menos del 5% de los datos)
 
 ## 📊 Variables utilizadas en la segmentación
 
@@ -39,6 +29,18 @@ Número de clusters: k=3 (balanceados, ninguno con menos del 5% de los datos)
 
 
 📈 Resultados e Interpretación
+
+🧠 Reglas de Segmentación (orden de prioridad)
+
+Segmento	Criterios (aplicados secuencialmente)
+Alto Valor	– Precio máximo individual > 4 M MXN
+– Profesión = “figura pública”
+– Posee más de 3 propiedades
+Inversionista	– Compró más de una propiedad con nosotros
+– Precio máximo individual > 2.5 M MXN
+– Contiene “inversionista” en comentarios
+Aspiracional	– Edad ≤ 39 años (y no clasificado en reglas anteriores)
+Patrimonial	– Por defecto (resto de clientes, típicamente edad > 39, puede tener hijos, precio moderado)
 
 El modelo asigna a cada cliente un cluster (0,1,2) y una etiqueta descriptiva. Los resultados se guardan en resultados/clientes_segmentados.csv. A continuación, los perfiles obtenidos de tus datos reales (después de limpiar outliers):
 
