@@ -52,13 +52,13 @@ El objetivo era encontrar agrupaciones naturales en los datos.
 ## 📊 Perfiles de Segmento (estadísticas reales)
 
 ### 🥇 Cluster 0: Alto Valor  
-**14 clientes (6% del total)**
+**7 clientes (5% del total)**
 
 | Característica       | Valor                                      |
 |----------------------|--------------------------------------------|
 | Edad media (rango)   | 54 años (40–71)                            |
 | Género               | 64% hombres / 36% mujeres                  |
-| Ticket promedio      | **$4,350,000 MXN**                         |
+| Ticket promedio      | **$3,350,000 MXN**                         |
 | Propiedades promedio | 2.8 inmuebles                              |
 | Rasgos               | Alto poder adquisitivo, decisiones rápidas, buscan exclusividad y plusvalía. |
 | Objetivo comercial   | Captar referidos, proyectos premium, relación personalizada. |
@@ -69,11 +69,11 @@ El objetivo era encontrar agrupaciones naturales en los datos.
 ---
 
 ### 📈 Cluster 1: Inversionistas Estratégicos  
-**28 clientes (12% del total)**
+**31 clientes (18% del total)**
 
 | Característica       | Valor                                      |
 |----------------------|--------------------------------------------|
-| Edad media (rango)   | 45 años (30–65)                            |
+| Edad media (rango)   | 51 años (30–65)                            |
 | Género               | 68% hombres / 32% mujeres                  |
 | Ticket promedio      | **$1,950,000 MXN**                         |
 | Propiedades promedio | 1.8 inmuebles                              |
@@ -86,13 +86,13 @@ El objetivo era encontrar agrupaciones naturales en los datos.
 ---
 
 ### 🌱 Cluster 2: Aspiracionales (Primera Vivienda)  
-**16 clientes (7% del total)**
+**23 clientes (13% del total)**
 
 | Característica       | Valor                                      |
 |----------------------|--------------------------------------------|
-| Edad media (rango)   | 31 años (20–39)                            |
+| Edad media (rango)   | 32 años (20–39)                            |
 | Género               | 56% mujeres / 44% hombres                  |
-| Ticket promedio      | **$620,000 MXN**                           |
+| Ticket promedio      | **$1,000,000 MXN**                           |
 | Anticipo promedio    | $280,000 MXN                               |
 | Rasgos               | Jóvenes, entusiastas, sensibles al precio, buscan independencia. |
 | Objetivo comercial   | Créditos accesibles, propiedades funcionales, contenido educativo. |
@@ -103,13 +103,13 @@ El objetivo era encontrar agrupaciones naturales en los datos.
 ---
 
 ### 🏡 Cluster 3: Patrimonial (Hogar y Familia)  
-**172 clientes (75% del total)**
+**118 clientes (64% del total)**
 
 | Característica       | Valor                                      |
 |----------------------|--------------------------------------------|
 | Edad media (rango)   | 53 años (40–78)                            |
 | Género               | 52% hombres / 48% mujeres                  |
-| Ticket promedio      | **$890,000 MXN**                           |
+| Ticket promedio      | **$1,100,000 MXN**                           |
 | Hijos promedio       | 0.8 (muchos con 2 o más)                   |
 | Rasgos               | Buscan estabilidad, vivienda para habitar, valoran ubicación y seguridad. |
 | Objetivo comercial   | Zonas familiares, escuelas, servicios, promociones de referidos. |
