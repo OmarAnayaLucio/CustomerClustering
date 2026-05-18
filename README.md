@@ -31,6 +31,9 @@ Inicialmente se aplicó **K‑Means** (clustering no supervisado) sobre caracter
 - ✅ La **interpretación comercial** de los clústeres se alineó con la lógica del negocio.
 - ✅ Se incluye clúster de inversionistas de alto poder adquisitivo vs patrimoniales.
 
+  <img width="760" height="484" alt="image" src="https://github.com/user-attachments/assets/19376ba0-ccf5-44df-804d-c792f0f8cbb8" />
+
+
 ### ✅ Fase 2: Adopción de Reglas de Negocio (enfoque actual)
 
 Tras evaluar los resultados, se optó por un **sistema basado en reglas explícitas** (ML ajustado) que:
@@ -51,6 +54,9 @@ Tras evaluar los resultados, se optó por un **sistema basado en reglas explíci
 | 🏡 **Patrimonial**  | – Edad > **39 años** Tiene hijos, precio moderado)                                             |
 
 ---
+
+<img width="1183" height="670" alt="image" src="https://github.com/user-attachments/assets/0222f8ca-97e8-468d-84ac-6c3d617b8d57" />
+
 
 ## 📊 Perfiles de Segmento (estadísticas reales)
 
